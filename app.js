@@ -1,15 +1,14 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const router = require('./routes');
+const bodyParser = require('body-parser')
 
 const app = express();
 
-app.use((req, res) => {
-    res.json({
-        message: 'Your request was successful!'
-    });
-});
+app.use(bodyParser.json())
+app.use('/api', router);
 
-mongoose.connect('mongodb+srv://will:<PASSWORD>@cluster0-pme76.mongodb.net/test?retryWrites=true')
+mongoose.connect(`mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@cluster0.pn6xt.mongodb.net/${process.env.MONGODB_DBNAME}?retryWrites=true&w=majority`)
     .then(() => {
         console.log('Successfully connected to MongoDB Atlas!');
     })
