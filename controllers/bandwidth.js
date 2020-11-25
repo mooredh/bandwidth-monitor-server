@@ -50,7 +50,7 @@ async function addBandwidthByDate(date, bandwidth) {
     let bandwidthDayArr
 
     if (!bandwidthDay) {
-        bandwidthDayArr = new Array(24).fill(new Array(2).fill(0));
+        bandwidthDayArr = Array.from({length: 24}, e => Array(2).fill(0));
     } else {
         bandwidthDayArr = [...bandwidthDay.bandwidth];
     }
