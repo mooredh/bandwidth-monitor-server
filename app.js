@@ -8,7 +8,7 @@ const app = express();
 app.use(bodyParser.json())
 app.use('/api', router);
 
-mongoose.connect(`mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@cluster0.pn6xt.mongodb.net/${process.env.MONGODB_DBNAME}?retryWrites=true&w=majority`)
+mongoose.connect(`mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@cluster0.pn6xt.mongodb.net/${process.env.MONGODB_DBNAME}?retryWrites=true&w=majority`, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
     .then(() => {
         console.log('Successfully connected to MongoDB Atlas!');
     })
