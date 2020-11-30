@@ -22,7 +22,6 @@ async function getBandwidthOverview(req, res, next) {
     try {
         const today = new Date();
         const currentHour = today.getHours();
-        const lastHour = currentHour === 0 ? 23 : currentHour - 1;
         const lastMonth = getPastMonth(today);
         const dateRange = `${dateMMMDD(lastMonth)} - ${dateMMMDD(today)}`;
         let bandwidthDays = await BandwidthDay.find({ date: { $gte: lastMonth.toDateString(), $lte: today.toDateString() } });
@@ -35,8 +34,8 @@ async function getBandwidthOverview(req, res, next) {
             }
 
             if (bandwidth.date.toDateString() === today.toDateString()) {
-                hourlyStats[0] += bandwidth.bandwidth[lastHour][0];
-                hourlyStats[1] += bandwidth.bandwidth[lastHour][1];
+                hourlyStats[0] += bandwidth.bandwidth[currentHour][0];
+                hourlyStats[1] += bandwidth.bandwidth[currentHour][1];
             }
         }
 
