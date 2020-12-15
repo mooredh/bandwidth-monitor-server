@@ -52,21 +52,27 @@ async function getBandwidthByMonth(req, res, next) {
             });
             return;
         }
-        let from = new Date(year, month);
-        let to = new Date(year, month >= 11 ? 0 : month+1 , 0);
+        let from = new Date(year, month, 0);
+        let to = month >= 11 ? new Date(year+1, 0, 1) : new Date(year, month+1, 1);
+
         let bandwidthDays = await BandwidthDay.find({ date: { $gte: from.toDateString(), $lte: to.toDateString() } });
         let data = {};
 
-        for (let i = 1; i <= to.getDate(); i++) {
+        to.setDate(0);
+        from.setDate(1);
+
+        for (let i = from.getDate(); i <= to.getDate(); i++) {
             data[i] = [0, 0];
         }
 
         bandwidthDays.forEach(bw => {
+            if (bw.date.getMonth() !== month) return;
             let tmp = [0, 0];
             bw.bandwidth.forEach(bwArr => {
                 tmp[0] += bwArr[0];
                 tmp[1] += bwArr[1];
             });
+            console.log(bw.date);
             data[bw.date.getDate()] = [...tmp];
         });
 
