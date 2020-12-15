@@ -15,4 +15,6 @@ function dateMMMDD(date) {
     return date.toString().substring(4, 10);
 }
 
-module.exports = { getPastMonth, dateMMMDD }
+const monthsInYear = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+module.exports = { getPastMonth, dateMMMDD, monthsInYear };

@@ -1,5 +1,5 @@
 const BandwidthDay = require("../models/BandwidthDay");
-const { getPastMonth, dateMMMDD } = require("../utils/helpers");
+const { getPastMonth, dateMMMDD, monthsInYear } = require("../utils/helpers");
 
 async function getBandwidthOverview(req, res, next) {
     try {
@@ -84,7 +84,8 @@ async function getBandwidthByMonth(req, res, next) {
 
         res.status(200).json({
             message: 'Successfully retrieved bandwidth',
-            data
+            data,
+            date: `${monthsInYear[month]} ${year}`
         });
 
         next()
