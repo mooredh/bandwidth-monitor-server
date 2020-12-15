@@ -52,12 +52,18 @@ async function getBandwidthByMonth(req, res, next) {
             });
             return;
         }
+
+        /**
+         * Filter from the last day of the previous month
+         * to the first day of the next month for timezone reasons */
+
         let from = new Date(year, month, 0);
         let to = month >= 11 ? new Date(year+1, 0, 1) : new Date(year, month+1, 1);
 
         let bandwidthDays = await BandwidthDay.find({ date: { $gte: from.toDateString(), $lte: to.toDateString() } });
         let data = {};
 
+        // Change dates back to current month
         to.setDate(0);
         from.setDate(1);
 
