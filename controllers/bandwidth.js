@@ -1,23 +1,6 @@
 const BandwidthDay = require("../models/BandwidthDay");
 const { getPastMonth, dateMMMDD } = require("../utils/helpers");
 
-async function getBandwidth(req, res, next) {
-    try {
-        const bandwidthDays = await BandwidthDay.find();
-
-        res.status(200).json({
-            message: 'Successfully retrieved bandwidth days',
-            bandwidthDays
-        });
-
-        next()
-    } catch (error) {
-        res.status(500).json({
-            message: error
-        });
-    }
-};
-
 async function getBandwidthOverview(req, res, next) {
     try {
         const today = new Date();
@@ -57,13 +40,60 @@ async function getBandwidthOverview(req, res, next) {
     }
 };
 
+async function getBandwidthByMonth(req, res, next) {
+    try {
+        let { month, year } = req.query;
+        month = parseInt(month);
+        year = parseInt(year);
+        const error = await validateMonth(month, year);
+        if (error !== '') {
+            res.status(400).json({
+                msg: error
+            });
+            return;
+        }
+        let from = new Date(year, month);
+        let to = new Date(year, month >= 11 ? 0 : month+1 , 0);
+        let bandwidthDays = await BandwidthDay.find({ date: { $gte: from.toDateString(), $lte: to.toDateString() } });
+        let data = {};
+
+        for (let i = 1; i <= to.getDate(); i++) {
+            data[i] = [0, 0];
+        }
+
+        bandwidthDays.forEach(bw => {
+            let tmp = [0, 0];
+            bw.bandwidth.forEach(bwArr => {
+                tmp[0] += bwArr[0];
+                tmp[1] += bwArr[1];
+            });
+            data[bw.date.getDate()] = [...tmp];
+        });
+
+        res.status(200).json({
+            message: 'Successfully retrieved bandwidth',
+            data
+        });
+
+        next()
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: error
+        });
+    }
+};
+
 async function addBandwidth(req, res, next) {
     try {
         let { bandwidth } = req.body;
-        const error = await validate(bandwidth);
-        if (error !== '') res.status(400).json({
-            msg: error
-        });
+        const error = await validateBandwidth(bandwidth);
+        if (error !== '') {
+            res.status(400).json({
+                msg: error
+            });
+            return;
+        }
 
         for (let key in bandwidth) {
             await addBandwidthByDate(key, bandwidth[key]);
@@ -118,7 +148,7 @@ async function addBandwidthByDate(date, bandwidth) {
     return;
 }
 
-async function validate(bandwidth) {
+async function validateBandwidth(bandwidth) {
     if (typeof bandwidth !== 'object') return 'Bandwidth is not an Object';
     for (let key in bandwidth) {
         if (!Date.parse(key)) return 'All bandwidth keys must be dates';
@@ -132,8 +162,16 @@ async function validate(bandwidth) {
     return '';
 }
 
+async function validateMonth(month, year) {
+    if (isNaN(month) || isNaN(year)) return 'Month and year must be numbers'
+    if (month < 0 || month > 11) return 'Month not between 0 and 11';
+    if (year < 2020 || year > 2040) return 'Year not in correct range';
+
+    return '';
+}
+
 module.exports = {
-    getBandwidth,
     addBandwidth,
-    getBandwidthOverview
+    getBandwidthOverview,
+    getBandwidthByMonth,
 };
